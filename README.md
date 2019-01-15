@@ -24,7 +24,7 @@ The changes made to files are being watched and the web server reloads automatic
 
 ## Roadmap
 
-* Authentication via JWT
+* Authentication via JWT (branch **develop**)
 * CI/CD: Travis or Gitlab (tbd)
 * Testing with Jest
 * Preparation for production deploy
