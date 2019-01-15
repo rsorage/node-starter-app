@@ -6,6 +6,12 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 
 const UserSchema = new Schema({
+  username: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 6
+  },
   email: {
     type: String,
     required: true,
@@ -36,28 +42,23 @@ UserSchema.methods.toJSON = function() {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-UserSchema.methods.generateAuthToken = function() {
+UserSchema.methods.generateAuthToken = async function() {
   const user = this;
   const access = 'auth';
   const token = jwt.sign({ _id: user._id.toHexString(), access }, 'abc123').toString();
 
   user.tokens = user.tokens.concat({ access, token })
 
-  return user.save().then(() => token);
+  await user.save();
+
+  return token;
 };
 
 UserSchema.statics.findByToken = async function(token) {
   const User = this;
-  let decoded;
+  let decoded = jwt.verify(token, 'abc123');
 
-  try {
-    decoded = jwt.verify(token, 'abc123');
-  }
-  catch(e) {
-    return new Promise.reject();
-  }
-
-  return User.findOne({
+  return await User.findOne({
     _id: decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'

@@ -4,11 +4,11 @@ const User = mongoose.model('User');
 const ServiceError = require('../errors/ServiceError');
 
 const authenticate = async (req, res, next) => {
-    const token = req.header('x-auth');
+    const token = req.header('Authorization');
     
     try {
-        const user = await User.findByToken(token);
-        
+        const user = await User.findByToken(token.replace('Bearer ', ''));
+
         if(!user)
             return Promise.reject();
         
