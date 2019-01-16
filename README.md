@@ -22,6 +22,87 @@ The web server container started with a bind mount<sup id="bind-mount">[1](#f1)<
 
 The changes made to files are being watched and the web server reloads automatically on file changes. This feature was only tested on **linux machines**.
 
+## Security
+
+### User creation
+
+The snippet bellow illustrates how an user can be created.
+
+```
+POST http://localhost:8080/users HTTP/1.1
+Content-Type: application/json
+
+# Request
+{
+    "username": "rsorage",
+    "email": "rsorage@example.com",
+    "password": "passwd"
+}
+
+# Response
+HTTP/1.1 201 Created
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YzNlNzU1MTY0MzNlNTAzMzI4ZjUyMTUiLCJhY2Nlc3MiOiJhdXRoIiwiaWF0IjoxNTQ3NTk3MTM3fQ.6FyzheYGxUZYvaHltSS0lbV7EuafA5B8jH-0AMkWx3g
+Content-Type: application/json; charset=utf-8
+Content-Length: 64
+
+{
+  "_id": "5c3e75516433e503328f5215",
+  "email": "rsorage@example.com"
+}
+```
+
+### Authentication
+
+The snippet bellow illustrates how an user can be authenticated.
+
+```
+POST http://localhost:8080/users/authenticate HTTP/1.1
+Content-Type: application/json
+
+# Request
+{
+    "username": "rsorage",
+    "password": "passwd"
+}
+
+# Response
+HTTP/1.1 200 OK
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YzNlNmI5ZmYxMWVmYjAyMTRiMmQ0OWEiLCJhY2Nlc3MiOiJhdXRoIiwiaWF0IjoxNTQ3NTk2NzMzfQ.rJbj3pzADDrQxhx1MAOKQnHSlJkhLKh_aZdM704b3QM
+Content-Type: application/json; charset=utf-8
+Content-Length: 64
+
+{
+  "_id": "5c3e6b9ff11efb0214b2d49a",
+  "email": "rsorage@example.com"
+}
+```
+
+### Secure routes
+
+To secure a route, the authentication middleware should be used.
+
+```js
+app.post('/examples', authenticate, async (req, res) => {
+    const example = new Example(req.body);
+    res.send(await example.save());
+});
+```
+In this case, if a request with an invalid token won't go through.
+
+```
+POST http://localhost:8080/examples HTTP/1.1
+Content-Type: application/json
+
+# Request
+{
+    "name": "Example 1",
+    "description": "This is the first example." 
+}
+
+# Response
+HTTP/1.1 401 Unauthorized
+```
+
 ## Roadmap
 
 * Authentication via JWT (branch **develop**)
