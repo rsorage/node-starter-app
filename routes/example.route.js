@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Example = mongoose.model('Example');
+
+const { authenticate } = require('../middlewares/authentication')
 // const cleanCache = require('../middlewares/cleanCache');
 
 module.exports = app => {
@@ -14,9 +16,9 @@ module.exports = app => {
         res.send(blog);
     });
 
-    app.post('/examples', async (req, res) => {
-        const blog = await Example.insertMany(req.body);
-        res.send(blog);
+    app.post('/examples', authenticate, async (req, res) => {
+        const example = new Example(req.body);
+        res.send(await example.save());
     });
 
 };
